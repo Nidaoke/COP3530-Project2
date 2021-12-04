@@ -1,2 +1,2 @@
-# COP3530-Project2
+# COP3530-Project3
 Worm Guiders
