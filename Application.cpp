@@ -21,6 +21,7 @@ struct Vertex{
     glm::vec3 position;
     glm::vec3 color;
     glm::vec2 texcoord;
+    glm::vec3 normal;
 };
 
 //Error Handling Macro
@@ -42,12 +43,12 @@ static bool GLLogCall(const char* function, const char* file, int line){
 }
 
 Vertex vertices[] = {
-    //Position                     //Color                      //Texcoords
-    glm::vec3(-0.5f, 0.5f, 0.0f),  glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f),
-    glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f),
-    glm::vec3(0.5f, -0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f),
+    //Position                     //Color                      //Texcoords            //Normal                     
+    glm::vec3(-0.5f, 0.5f, 0.0f),  glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f),
+    glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f),
+    glm::vec3(0.5f, -0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f),
 
-    glm::vec3(0.5f, 0.5f, 0.0f),   glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(1.0f, 1.0f),
+    glm::vec3(0.5f, 0.5f, 0.0f),   glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f),
 };
 unsigned int nrOfVertices = sizeof(vertices)/sizeof(Vertex);
 
@@ -207,8 +208,8 @@ int main(){
 
     //OPENGL OPTIONS
     GLCall(glEnable(GL_DEPTH_TEST));
-    //GLCall(glEnable(GL_CULL_FACE)); //NO DRAW BACK
-    //GLCall(glCullFace(GL_BACK));
+    GLCall(glEnable(GL_CULL_FACE)); //NO DRAW BACK
+    GLCall(glCullFace(GL_BACK));
     GLCall(glFrontFace(GL_CCW));
 
     GLCall(glEnable(GL_BLEND)); //blends colors
@@ -249,6 +250,10 @@ int main(){
     //TEXCOORD
     GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, texcoord)));
     GLCall(glEnableVertexAttribArray(2));
+
+    //Normal
+    GLCall(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal)));
+    GLCall(glEnableVertexAttribArray(3));
 
     GLCall(glBindVertexArray(0));
 
@@ -329,11 +334,18 @@ int main(){
 
     ProjectionMatrix = glm::perspective(glm::radians(fov), static_cast<float>(frameBufferWidth)/frameBufferHeight, nearPlane, farPlane);
 
+    //LIGHTS
+    glm::vec3 lightPos0(0.0f, 0.0f, 1.0f);
+
+    //INIT UNIFORMS
     GLCall(glUseProgram(core_program));
 
     GLCall(glUniformMatrix4fv(glGetUniformLocation(core_program, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix)));
     GLCall(glUniformMatrix4fv(glGetUniformLocation(core_program, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(ViewMatrix)));
     GLCall(glUniformMatrix4fv(glGetUniformLocation(core_program, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix)));
+
+    GLCall(glUniform3fv(glGetUniformLocation(core_program, "lightPos0"), 1, glm::value_ptr(lightPos0)));
+    GLCall(glUniform3fv(glGetUniformLocation(core_program, "cameraPos"), 1, glm::value_ptr(camPosition)));
 
     GLCall(glUseProgram(0));
 
