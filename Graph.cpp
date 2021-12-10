@@ -279,3 +279,7 @@ void Graph::TestGraph() {
 		cout << "Weight: " << v.second << endl;
 	}*/
 }
+
+unordered_map<Node*, unordered_map<Node*, int>> Graph::getAdjList() {
+	return adjList;
+}
