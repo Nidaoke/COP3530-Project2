@@ -51,6 +51,8 @@ void Game::initOpenGLOptions(){
     glEnable(GL_BLEND); //blends colors
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //OR GL_LINE FOR OUTLINE
+
+    glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void Game::initMatrices(){
@@ -72,24 +74,52 @@ void Game::initShaders(){
 void Game::initTextures(){
     //TEXTURE0
     this->textures.push_back(new Texture("src/worm.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("src/worm_specular.png", GL_TEXTURE_2D));
 
     //TEXTURE1
     this->textures.push_back(new Texture("src/stone.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("src/stone_specular.png", GL_TEXTURE_2D));
 }
 
 void Game::initMaterials(){
-    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), TEX_WORM0, TEX_STONE1));
+    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 0, 1));
 }
 
 void Game::initMeshes(){
-    Quad tempQuad;
+    /*Quad tempQuad;
     this->meshes.push_back(
         new Mesh(
             &tempQuad,
             glm::vec3(0.0f),
             glm::vec3(0.0f),
             glm::vec3(1.0f)
-    ));
+    ));*/
+
+    /*Pyramid tempPyramid;
+    this->meshes.push_back(
+        new Mesh(
+            &tempPyramid,
+            glm::vec3(0.0f),
+            glm::vec3(0.0f),
+            glm::vec3(1.0f)
+        ));*/
+
+    Cube tempCube;
+    this->meshes.push_back(
+        new Mesh(
+            &tempCube,
+            glm::vec3(0.5f, 0.0f, -1.0f),
+            glm::vec3(0.0f),
+            glm::vec3(1.0f)
+        ));
+
+    this->meshes.push_back(
+        new Mesh(
+            &tempCube,
+            glm::vec3(-0.5f, 0.0f, -1.0f),
+            glm::vec3(0.0f),
+            glm::vec3(1.0f)
+        ));
 }
 
 void Game::initLights(){
@@ -101,11 +131,14 @@ void Game::initUniforms(){
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ProjectionMatrix, "ProjectionMatrix");
 
     this->shaders[SHADER_CORE_PROGRAM]->setVec3f(*this->lights[0], "lightPos0");
-    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camPosition, "cameraPos");
 }
 
 void Game::updateUniforms(){
-    this->materials[MAT_1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+    //Update View Matrix (camera)
+    this->ViewMatrix = glm::lookAt(this->camPosition, this->camPosition+this->camFront, this->worldUp);
+
+    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ViewMatrix, "ViewMatrix");
+    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camPosition, "cameraPos");
 
     //Update Frame Buffer Size and projection matrix
     glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);
@@ -142,6 +175,18 @@ Game::Game(
     this->fov = 90.0f;
     this->nearPlane = 0.1f;
     this->farPlane = 1000.0f;
+
+    this->dt = 0.0f;
+    this->curTime = 0.0f;
+    this->lastTime = 0.0f;
+
+    this->lastMouseX = 0.0;
+    this->lastMouseY = 0.0;
+    this->mouseX = 0.0;
+    this->mouseY = 0.0;
+    this->mouseOffsetX = 0.0;
+    this->mouseOffsetY = 0.0;
+    this->firstMouse = true;
 
     this->initGLFW();
 	this->initWindow(title, resizable);
@@ -185,16 +230,61 @@ void Game::setWindowShouldClose(){
 }
 
 //Functions
-void Game::update(){
-    //Update input
+void Game::updateDt(){
+    this->curTime = static_cast<float>(glfwGetTime());
+    this->dt = this->curTime-this->lastTime;
+    this->lastTime = this->curTime;
+}
+
+void Game::updateMouseInput(){
+    glfwGetCursorPos(this->window, &this->mouseX, &this->mouseY);
+
+    if (this->firstMouse){
+        this->lastMouseX = this->mouseX;
+        this->lastMouseY = this->mouseY;
+        this->firstMouse = false;
+    }
+
+    //calc offset
+    this->mouseOffsetX = this->mouseX-this->lastMouseX;
+    this->mouseOffsetY = this->mouseY-this->lastMouseY;
+
+    //Set last x and y
+    this->lastMouseX = this->mouseX;
+    this->lastMouseY = this->mouseY;
+}
+
+void Game::updateKeyboardInput(){
+    if (glfwGetKey(this->window, GLFW_KEY_ESCAPE)==GLFW_PRESS)
+        glfwSetWindowShouldClose(this->window, GLFW_TRUE);
+    if (glfwGetKey(this->window, GLFW_KEY_W)==GLFW_PRESS)
+        this->camPosition.z -= 0.05f;
+    if (glfwGetKey(this->window, GLFW_KEY_S)==GLFW_PRESS)
+        this->camPosition.z += 0.05f;
+    if (glfwGetKey(this->window, GLFW_KEY_A)==GLFW_PRESS)
+        this->camPosition.x -= 0.05f;
+    if (glfwGetKey(this->window, GLFW_KEY_D)==GLFW_PRESS)
+        this->camPosition.x += 0.05f;
+    if (glfwGetKey(this->window, GLFW_KEY_E)==GLFW_PRESS)
+        this->camPosition.y += 0.05f;
+    if (glfwGetKey(this->window, GLFW_KEY_Q)==GLFW_PRESS)
+        this->camPosition.y -= 0.05f;
+}
+
+void Game::updateInput(){
     glfwPollEvents();
-    updateInput(this->window, *this->meshes[MESH_QUAD]);
+    this->updateKeyboardInput();
+    this->updateMouseInput();
+}
+
+void Game::update(){
+    this->updateDt();
+    this->updateInput();
+    std::cout<<"DT: "<<this->dt<<std::endl;
+    std::cout<<"Mouse offsetx: "<<this->mouseOffsetX<<" Mouse offsetY: "<<this->mouseOffsetY<<std::endl;
 }
 
 void Game::render(){
-
-    //updateInput(this->window);
-
     //DRAW
     //Clear
     glClearColor(0, 0, 0, 1);
@@ -203,15 +293,23 @@ void Game::render(){
     //Update uniforms
     this->updateUniforms();
 
+    //Send material to shader
+    this->materials[MAT_1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+
     //Use a program
     this->shaders[SHADER_CORE_PROGRAM]->use();
 
     //Activate Textures
-    this->textures[TEX_WORM0]->bind(0);
-    this->textures[TEX_STONE1]->bind(1);
+    this->textures[TEX_STONE]->bind(0);
+    this->textures[TEX_STONE_SPECULAR]->bind(1);
 
     //Draw
-    this->meshes[MESH_QUAD]->render(this->shaders[SHADER_CORE_PROGRAM]);
+    this->meshes[0]->render(this->shaders[SHADER_CORE_PROGRAM]);
+
+    //this->textures[TEX_WORM]->bind(0);
+    //this->textures[TEX_WORM_SPECULAR]->bind(1);
+
+    this->meshes[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
     //End draw
     glfwSwapBuffers(this->window);
@@ -229,7 +327,7 @@ void Game::framebuffer_resize_callback(GLFWwindow* window, int fbw, int fbh){
     glViewport(0, 0, fbw, fbh);
 }
 
-void Game::updateInput(GLFWwindow* window, Mesh& mesh){
+/*void Game::updateInput(GLFWwindow* window, Mesh& mesh){
     if (glfwGetKey(window, GLFW_KEY_ESCAPE)==GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 
@@ -253,4 +351,4 @@ void Game::updateInput(GLFWwindow* window, Mesh& mesh){
         mesh.scaleScale(glm::vec3(.1f));
     if (glfwGetKey(window, GLFW_KEY_X)==GLFW_PRESS)
         mesh.scaleScale(glm::vec3(-.1f));
-}
+}*/
