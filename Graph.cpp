@@ -1,4 +1,4 @@
-#include "Maze.h"
+#include "Graph.h"
 
 void Node::NeighborWalls() {
 	for (int i = 0; i < 6; i++) {
