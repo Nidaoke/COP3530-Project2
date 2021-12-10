@@ -289,3 +289,11 @@ void Graph::TestGraph() {
 unordered_map<Node*, unordered_map<Node*, int>> Graph::getAdjList() {
 	return adjList;
 }
+
+Node* Graph::getStartNode() {
+	return startNode;
+}
+
+Node* Graph::getEndNode() {
+	return endNode;
+}
