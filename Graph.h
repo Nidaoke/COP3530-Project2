@@ -25,10 +25,23 @@ struct Node {
 	int xPos;
 	int yPos;
 	int zPos;
-	bool seen[6] = { false };
-	bool noWall[6] = { false };
-	void NeighborWalls();
+    	int g_score = INT_MAX;
+    	double f_score = INT_MAX;
+   	Node* prev = nullptr;
+   	bool seen[6] = { false };
+   	bool noWall[6] = { false };
+   	void NeighborWalls();
+   	bool operator>(const Node& rhs) {
+	     return this->f_score > rhs.f_score;
+    	}
+};
 
+struct minF
+{
+    bool operator()(const Node& lhs, const Node& rhs) const
+    {
+        return lhs.f_score > rhs.f_score;
+    }
 };
 
 struct Data {
