@@ -39,6 +39,8 @@ struct Data {
 class Graph {
 	unordered_map<Node*, unordered_map<Node*, int>> adjList;
 	Data nodes;
+	Node* startNode;
+	Node* endNode;
 public:
 	void InitializeGraph();
 	void TestGraph();
