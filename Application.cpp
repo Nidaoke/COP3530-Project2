@@ -46,7 +46,7 @@ int main(){
     Game game(
         walls,
         "Worm Test",
-        640, 480,
+        1600, 1080,
         4, 5,
         false);
 

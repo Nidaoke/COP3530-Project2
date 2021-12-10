@@ -223,10 +223,10 @@ void Game::initUniforms(){
 
 void Game::updateUniforms(){
     //Update View Matrix (camera)
-    this->ViewMatrix = glm::lookAt(this->camPosition, this->camPosition+this->camFront, this->worldUp);
+    this->ViewMatrix = this->camera.getViewMatrix();
 
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ViewMatrix, "ViewMatrix");
-    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camPosition, "cameraPos");
+    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camera.getPosition(), "cameraPos");
 
     //Update Frame Buffer Size and projection matrix
     glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);
@@ -250,7 +250,8 @@ Game::Game(
     bool resizable
 )
     : WINDOW_WIDTH(WINDOW_WIDTH), WINDOW_HEIGHT(WINDOW_HEIGHT),
-    GL_VERSION_MAJOR(GL_VERSION_MAJOR), GL_VERSION_MINOR(GL_VERSION_MINOR)
+    GL_VERSION_MAJOR(GL_VERSION_MAJOR), GL_VERSION_MINOR(GL_VERSION_MINOR),
+    camera(glm::vec3(0.0f, 0.f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 {
     //Init Variables
     this->window = nullptr;
@@ -352,13 +353,13 @@ void Game::updateKeyboardInput(){
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE)==GLFW_PRESS)
         glfwSetWindowShouldClose(this->window, GLFW_TRUE);
     if (glfwGetKey(this->window, GLFW_KEY_W)==GLFW_PRESS)
-        this->camPosition.z -= 0.05f;
+        this->camera.move(this->dt, FORWARD);
     if (glfwGetKey(this->window, GLFW_KEY_S)==GLFW_PRESS)
-        this->camPosition.z += 0.05f;
+        this->camera.move(this->dt, BACK);
     if (glfwGetKey(this->window, GLFW_KEY_A)==GLFW_PRESS)
-        this->camPosition.x -= 0.05f;
+        this->camera.move(this->dt, LEFT);
     if (glfwGetKey(this->window, GLFW_KEY_D)==GLFW_PRESS)
-        this->camPosition.x += 0.05f;
+        this->camera.move(this->dt, RIGHT);
     if (glfwGetKey(this->window, GLFW_KEY_E)==GLFW_PRESS)
         this->camPosition.y += 0.05f;
     if (glfwGetKey(this->window, GLFW_KEY_Q)==GLFW_PRESS)
@@ -369,6 +370,8 @@ void Game::updateInput(){
     glfwPollEvents();
     this->updateKeyboardInput();
     this->updateMouseInput();
+
+    this->camera.updateInput(dt, -1, this->mouseOffsetX, this->mouseOffsetY);
 }
 
 void Game::update(){
