@@ -47,7 +47,7 @@ struct minF
 };
 
 struct Data {
-    Node* Cube[4][4][4];
+    Node* Cube[47][47][47];
     void InitializeNodes();
 
 };

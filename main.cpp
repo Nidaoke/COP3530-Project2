@@ -9,41 +9,54 @@
 using namespace std;
 
 
-////inspired by Aman's pseudocode
-////Following PseudoCode from slides using 2set and 2array method
-//vector<int> dijkstra(Graph& graph, Node* src) {
-//    int numVertices = 4 * 4 * 4;
-//    unordered_set<Node*> computedVertices = {src}, nonComputedVertices;
-//    vector<int> distances(numVertices, 2147483647);
-//    vector<Node*> predecessor;
-//    for(auto i : graph.adjList)
-//        if(i.first!=src){
-//            nonComputedVertices.insert(i.first);
-//            for(auto v : graph.adjList[src])
-//                if(v.first == i.first){
-//                    distances[i] = v.second;
-//                    break;
-//                }
-//        }
-//    distances[src] = 0;
-//    while(!nonComputedVertices.empty()){
-//        Node* index = src;
-//        int smallestVal = 2147483647;
-//        for (auto v:nonComputedVertices)
-//            if (distances[v]<smallestVal){
-//                index = v;
-//                smallestVal = distances[v];
-//            }
-//        nonComputedVertices.erase(index);
-//        computedVertices.insert(index);
-//        for(auto v : graph.adjList[index])
-//            if(distances[index] + v.second < distances[v.first]){
-//                distances[v.first] = distances[index] + v.second;
-//                predecessor[v.first] = index;
-//            }
-//    }
-//    return distances;
-//}
+//inspired by Aman's pseudocode
+//Following PseudoCode from slides using 2set and 2array method
+vector<Node*> dijkstra(Graph& graph, Node* src, Node* endNode) {
+    int numVertices = 47 * 47 * 47;
+    unordered_set<Node*> computedVertices = {src}, nonComputedVertices;
+    unordered_map<Node*, int> distances;
+    vector<Node*> v;
+    unordered_map<Node*, Node*> predecessors;
+    for (auto i : graph.adjList) {
+        distances[i.first] = INT_MAX;
+    }
+    for (auto i : graph.adjList) {
+
+        if (i.first != src) {
+            nonComputedVertices.insert(i.first);
+            for (auto v : graph.adjList[src])
+                if (v.first == i.first) {
+                    distances[i.first] = v.second;
+                    break;
+                }
+        }
+    }
+    distances[src] = 0;
+    v.push_back(src);
+    while(!nonComputedVertices.empty()){
+        Node* index = src;
+        int smallestVal = INT_MAX;
+        
+        for (auto v:nonComputedVertices)
+            if (distances[v]<smallestVal){
+                index = v;
+                smallestVal = distances[v];
+            }
+        nonComputedVertices.erase(index);
+        computedVertices.insert(index);
+        v.push_back(index);
+        for (auto v : graph.adjList[index]) {
+            if (distances[index] + v.second < distances[v.first]) {
+                distances[v.first] = distances[index] + v.second;
+                predecessors[v.first] = index;
+            }
+        }
+        if (computedVertices.find(endNode) != computedVertices.end()) {
+            return v;
+        }
+    }
+    return v;
+}
 
 
 
@@ -85,14 +98,14 @@ vector <Node*> a_star(Graph& graph, Node* start_node, Node* target_node) { //par
         int tempG = 0;
         
         if (unvisited.empty()) { //if empty then they have all been visited
-            cout << "wtf" << endl;
+            
             finished = true;
         }
         else {
             current = unvisited.top();
             unvisited.pop();
             if (current == target_node) {
-                cout << "hello" << endl;
+                
                 finished = true;
                 //copying data to visited map
                 visited.insert(current);
@@ -128,11 +141,16 @@ vector <Node*> a_star(Graph& graph, Node* start_node, Node* target_node) { //par
 int main(){
     Graph g;
     g.InitializeGraph();
-    vector <Node*> path = a_star(g, g.getStartNode(), g.getEndNode());
-    for (auto iter : path) {
+    //g.TestGraph();
+    vector<Node*> aPath = a_star(g, g.getStartNode(), g.getEndNode());
+    //vector <Node*> path = dijkstra(g, g.getStartNode(), g.getEndNode());
+    /*for (auto iter : path) {
         cout << iter->xPos << " " << iter->yPos << " " << iter->zPos << endl;
         
-    }
-    cout << path.size();
+    }*/
+    cout << "A*: " << aPath.size() << endl;
+    vector<Node*> path = dijkstra(g, g.getStartNode(), g.getEndNode());
+    cout << "Dijkstras: " << path.size() << endl;;
+   
 
 }
