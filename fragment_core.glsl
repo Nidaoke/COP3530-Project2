@@ -6,6 +6,7 @@ struct Material{
 	vec3 specular;
 	sampler2D diffuseTex;
 	sampler2D specularTex;
+	float alpha;
 };
 
 in vec3 vs_position;
@@ -60,5 +61,5 @@ void main(){
 
 	//Final Light
 	fs_color = texture(material.diffuseTex, vs_texcoord)
-		* (vec4(ambientFinal, 0.1f) + vec4(1.0f, 1.0f, 1.0f, 0.1f) + vec4(specularFinal, 0.1f));
+		* (vec4(ambientFinal, material.alpha) + vec4(1.0f, 1.0f, 1.0f, material.alpha) + vec4(specularFinal, material.alpha));
 }

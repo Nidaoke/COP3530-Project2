@@ -76,6 +76,7 @@ void Game::initTextures(){
     this->textures.push_back(new Texture("src/weight2.png", GL_TEXTURE_2D));
     this->textures.push_back(new Texture("src/weight3.png", GL_TEXTURE_2D));
     this->textures.push_back(new Texture("src/weight4.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("src/worm.png", GL_TEXTURE_2D));
 
 
     /*//TEXTURE0
@@ -88,10 +89,13 @@ void Game::initTextures(){
 }
 
 void Game::initMaterials(){
-    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 0, 1));
+    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 0, 1, 0.1f));
+    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 0, 1, 1.0f));
 }
 
 void Game::initMeshes(){
+
+    std::cout<<std::endl<<"PATH SIZE: "<<this->path.size()<<std::endl;
 
     /*Quad tempQuad;
     this->meshes.push_back(
@@ -112,6 +116,20 @@ void Game::initMeshes(){
             glm::vec3(0.0f, -90.0f, 0.0f),
             glm::vec3(1.0f)
         ));*/
+
+    Cube tempCube;
+    for (auto v:path){
+        std::cout<<"Building Cube at "<<v->xPos<<" "<<v->yPos<<" "<<v->zPos<<std::endl;
+        this->meshes.push_back(
+            new Mesh(
+                &tempCube,
+                5,
+                glm::vec3((float)v->xPos, (float)v->yPos, -(float)v->zPos),
+                glm::vec3(0.0f),
+                glm::vec3(0.3f)
+            )
+        );
+    }
 
     for (auto v:walls){
         Quad tempQuad;
@@ -172,15 +190,6 @@ void Game::initMeshes(){
                     glm::vec3(0.0f, 0.0f, 0.0f),
                     glm::vec3(1.0f)
                 ));
-
-        /*this->meshes.push_back(
-            new Mesh(
-                &tempQuad,
-                v->w,
-                glm::vec3((float)v->x, (float)v->y, (float)v->z),
-                glm::vec3(0.0f),
-                glm::vec3(1.0f)
-            ));*/
     }
 
     /*Pyramid tempPyramid;
@@ -244,6 +253,7 @@ void Game::updateUniforms(){
 //Constructors / Destructors
 Game::Game(
     std::vector<wallToBuild*> walls,
+    std::vector<Node*> path,
     const char* title,
     const int WINDOW_WIDTH, const int WINDOW_HEIGHT,
     const int GL_VERSION_MAJOR, const int GL_VERSION_MINOR,
@@ -254,6 +264,10 @@ Game::Game(
     camera(glm::vec3(0.0f, 0.f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 {
     //Init Variables
+
+    //std::cout<<std::endl<<"From Game, path.size(): "<<path.size()<<std::endl;
+    this->path = path;
+
     this->window = nullptr;
     this->framebufferWidth = this->WINDOW_WIDTH;
     this->framebufferHeight = this->WINDOW_HEIGHT;
@@ -390,13 +404,19 @@ void Game::render(){
     //Update uniforms
     this->updateUniforms();
 
-    //Send material to shader
-    this->materials[MAT_1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-
-    //Use a program
-    this->shaders[SHADER_CORE_PROGRAM]->use();
-
     for (auto v:meshes){
+
+        if (v->weight==5){
+            //Send material to shader
+            this->materials[1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+        }
+        else{
+            //Send material to shader
+            this->materials[0]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+        }
+
+        this->shaders[SHADER_CORE_PROGRAM]->use();
+
         this->textures[v->weight-1]->bind(0);
         this->textures[v->weight-1]->bind(1);
         v->render(this->shaders[SHADER_CORE_PROGRAM]);

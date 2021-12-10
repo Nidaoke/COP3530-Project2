@@ -125,7 +125,7 @@ public:
 	}
 };
 
-class Cube: public Primitive
+/*class Cube: public Primitive
 {
 public:
 	Cube()
@@ -164,9 +164,9 @@ public:
 
 		this->set(vertices, nrOfVertices, indices, nrOfIndices);
 	}
-};
+};*/
 
-/*class Cube: public Primitive{
+class Cube: public Primitive{
 public:
 	Cube():Primitive(){
 		Vertex vertices[] = {
@@ -223,4 +223,4 @@ public:
 
 		this->set(vertices, nrOfVertices, nullptr, 0);
 	}
-};*/
+};

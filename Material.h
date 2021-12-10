@@ -20,18 +20,21 @@ private:
 	glm::vec3 specular;
 	GLint diffuseTex;
 	GLint specularTex;
+	GLfloat alpha;
 public:
 	Material(glm::vec3 ambient,
 			 glm::vec3 diffuse,
 			 glm::vec3 specular,
 			 GLint diffuseTex,
-			 GLint specularTex)
+			 GLint specularTex,
+			 GLfloat alpha)
 	{
 		this->ambient = ambient;
 		this->diffuse = diffuse;
 		this->specular = specular;
 		this->diffuseTex = diffuseTex;
 		this->specularTex = specularTex; 
+		this->alpha = alpha;
 	}
 
 	~Material(){}
@@ -42,5 +45,6 @@ public:
 		program.setVec3f(this->specular, "material.specular");
 		program.set1i(this->diffuseTex, "material.diffuseTex");
 		program.set1i(this->specularTex, "material.specularTex");
+		program.setVec1f(this->alpha, "material.alpha");
 	}
 };
