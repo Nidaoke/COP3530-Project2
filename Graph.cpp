@@ -12,9 +12,9 @@ void Data::InitializeNodes() {
 	std::mt19937 rng(ran());
 	std::uniform_int_distribution<int> range(0, 1);
 
-	for (int x = 0; x < 47; x++) {
-		for (int y = 0; y < 47; y++) {
-			for (int z = 0; z < 47; z++) {
+	for (int x = 0; x < 4; x++) {
+		for (int y = 0; y < 4; y++) {
+			for (int z = 0; z < 4; z++) {
 				Node* temp = new Node();
 				temp->NeighborWalls();
 				Cube[x][y][z] = temp;
