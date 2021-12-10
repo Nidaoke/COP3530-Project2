@@ -246,6 +246,12 @@ void Graph::InitializeGraph() {
 			for (int z = 0; z < 47; z++) {
 				Node* temp = nodes.Cube[x][y][z];
 				adjList[temp];
+				if (x == 0 && y == 0 && z == 0) {
+					endNode = temp;
+				}
+				else if (x == 46 && y == 46 && z == 46) {
+					startNode = temp;
+				}
 				for (int i = 0; i < temp->neighbors.size(); i++) {
 					if (temp->neighbors[i] != nullptr) {
 						if (temp->noWall[i]) {
