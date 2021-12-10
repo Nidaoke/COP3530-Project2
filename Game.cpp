@@ -72,13 +72,19 @@ void Game::initShaders(){
 }
 
 void Game::initTextures(){
-    //TEXTURE0
+    this->textures.push_back(new Texture("src/weight1.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("src/weight2.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("src/weight3.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("src/weight4.png", GL_TEXTURE_2D));
+
+
+    /*//TEXTURE0
     this->textures.push_back(new Texture("src/worm.png", GL_TEXTURE_2D));
     this->textures.push_back(new Texture("src/worm_specular.png", GL_TEXTURE_2D));
 
     //TEXTURE1
     this->textures.push_back(new Texture("src/stone.png", GL_TEXTURE_2D));
-    this->textures.push_back(new Texture("src/stone_specular.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("src/stone_specular.png", GL_TEXTURE_2D));*/
 }
 
 void Game::initMaterials(){
@@ -86,14 +92,96 @@ void Game::initMaterials(){
 }
 
 void Game::initMeshes(){
+
     /*Quad tempQuad;
     this->meshes.push_back(
         new Mesh(
             &tempQuad,
-            glm::vec3(0.0f),
-            glm::vec3(0.0f),
+            1,
+            glm::vec3(0.0f, 0.0f, -5.0f),
+            glm::vec3(0.0f, 90.0f, 0.0f),
             glm::vec3(1.0f)
-    ));*/
+        ));
+
+    //Quad tempQuad;
+    this->meshes.push_back(
+        new Mesh(
+            &tempQuad,
+            2,
+            glm::vec3(1.0f, 0.0f, -5.0f),
+            glm::vec3(0.0f, -90.0f, 0.0f),
+            glm::vec3(1.0f)
+        ));*/
+
+    for (auto v:walls){
+        Quad tempQuad;
+
+        if (v->f==0)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    v->w,
+                    glm::vec3((float)v->x+.5f, (float)v->y, -(float)v->z),
+                    glm::vec3(0.0f, 90.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+        if (v->f==1)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    v->w,
+                    glm::vec3((float)v->x-.5f, (float)v->y, -(float)v->z),
+                    glm::vec3(0.0f, -90.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+
+        if (v->f==3)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    v->w,
+                    glm::vec3((float)v->x, (float)v->y-.5f, -(float)v->z),
+                    glm::vec3(90.0f, 0.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+        if (v->f==2)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    v->w,
+                    glm::vec3((float)v->x, (float)v->y+.5f, -(float)v->z),
+                    glm::vec3(-90.0f, 0.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+
+        if (v->f==5)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    v->w,
+                    glm::vec3((float)v->x, (float)v->y, -(float)v->z-.5f),
+                    glm::vec3(0.0f, 180.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+        if (v->f==4)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    v->w,
+                    glm::vec3((float)v->x, (float)v->y, -(float)v->z+.5f),
+                    glm::vec3(0.0f, 0.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+
+        /*this->meshes.push_back(
+            new Mesh(
+                &tempQuad,
+                v->w,
+                glm::vec3((float)v->x, (float)v->y, (float)v->z),
+                glm::vec3(0.0f),
+                glm::vec3(1.0f)
+            ));*/
+    }
 
     /*Pyramid tempPyramid;
     this->meshes.push_back(
@@ -104,7 +192,7 @@ void Game::initMeshes(){
             glm::vec3(1.0f)
         ));*/
 
-    Cube tempCube;
+    /*Cube tempCube;
     this->meshes.push_back(
         new Mesh(
             &tempCube,
@@ -119,11 +207,11 @@ void Game::initMeshes(){
             glm::vec3(-0.5f, 0.0f, -1.0f),
             glm::vec3(0.0f),
             glm::vec3(1.0f)
-        ));
+        ));*/
 }
 
 void Game::initLights(){
-    this->lights.push_back(new glm::vec3(0.0f, 0.0f, 1.0f));
+    this->lights.push_back(new glm::vec3(0.0f, 0.0f, 5.0f));
 }
 
 void Game::initUniforms(){
@@ -155,6 +243,7 @@ void Game::updateUniforms(){
 
 //Constructors / Destructors
 Game::Game(
+    std::vector<wallToBuild*> walls,
     const char* title,
     const int WINDOW_WIDTH, const int WINDOW_HEIGHT,
     const int GL_VERSION_MAJOR, const int GL_VERSION_MINOR,
@@ -167,8 +256,10 @@ Game::Game(
     this->window = nullptr;
     this->framebufferWidth = this->WINDOW_WIDTH;
     this->framebufferHeight = this->WINDOW_HEIGHT;
+    
+    this->walls = walls;
 
-    this->camPosition = glm::vec3(0.0f, 0.0f, 1.0f);
+    this->camPosition = glm::vec3(0.0f, 0.0f, 5.0f);
     this->worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
     this->camFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
@@ -217,6 +308,9 @@ Game::~Game(){
         delete this->meshes[i];
     for (size_t i = 0; i<this->lights.size(); i++)
         delete this->lights[i];
+
+    for (auto v:walls)
+        delete v;
 }
 
 //Accessors
@@ -280,8 +374,8 @@ void Game::updateInput(){
 void Game::update(){
     this->updateDt();
     this->updateInput();
-    std::cout<<"DT: "<<this->dt<<std::endl;
-    std::cout<<"Mouse offsetx: "<<this->mouseOffsetX<<" Mouse offsetY: "<<this->mouseOffsetY<<std::endl;
+    //std::cout<<"DT: "<<this->dt<<std::endl;
+    //std::cout<<"Mouse offsetx: "<<this->mouseOffsetX<<" Mouse offsetY: "<<this->mouseOffsetY<<std::endl;
 }
 
 void Game::render(){
@@ -299,17 +393,23 @@ void Game::render(){
     //Use a program
     this->shaders[SHADER_CORE_PROGRAM]->use();
 
+    for (auto v:meshes){
+        this->textures[v->weight-1]->bind(0);
+        this->textures[v->weight-1]->bind(1);
+        v->render(this->shaders[SHADER_CORE_PROGRAM]);
+    }
+
     //Activate Textures
-    this->textures[TEX_STONE]->bind(0);
-    this->textures[TEX_STONE_SPECULAR]->bind(1);
+    /*this->textures[TEX_WEIGHT1]->bind(0);
+    this->textures[TEX_WEIGHT1]->bind(1);
 
     //Draw
-    this->meshes[0]->render(this->shaders[SHADER_CORE_PROGRAM]);
+    this->meshes[0]->render(this->shaders[SHADER_CORE_PROGRAM]);*/
 
     //this->textures[TEX_WORM]->bind(0);
     //this->textures[TEX_WORM_SPECULAR]->bind(1);
 
-    this->meshes[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
+    //this->meshes[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
     //End draw
     glfwSwapBuffers(this->window);

@@ -26,10 +26,12 @@
 #include "Mesh.h"
 #include "Primitives.h"
 #include "Camera.h"
+#include "wallToBuild.h"
 
 //ENUMERATIONS
 enum shader_enum{SHADER_CORE_PROGRAM = 0};
-enum texture_enum{TEX_WORM = 0, TEX_WORM_SPECULAR, TEX_STONE, TEX_STONE_SPECULAR};
+enum texture_enum{ TEX_WEIGHT1 = 0, TEX_WEIGHT2, TEX_WEIGHT3, TEX_WEIGHT4};
+//enum texture_enum{TEX_WORM = 0, TEX_WORM_SPECULAR, TEX_STONE, TEX_STONE_SPECULAR};
 enum material_enum{MAT_1 = 0};
 enum mesh_enum{MESH_QUAD = 0, MESH_CUBE};
 
@@ -86,6 +88,9 @@ private:
 	//Lights
 	std::vector<glm::vec3*> lights;
 
+	//Walls
+	std::vector<wallToBuild*> walls;
+
 
 //Private Functions
 	void initGLFW();
@@ -107,6 +112,7 @@ private:
 public:
 //Constructors / Destructors
 	Game(
+		std::vector<wallToBuild*> walls,
 		const char* title,
 		const int WINDOW_WIDTH, const int WINDOW_HEIGHT,
 		const int GL_VERSION_MAJOR, const int GL_VERSION_MINOR,

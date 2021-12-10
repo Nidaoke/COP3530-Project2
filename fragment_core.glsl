@@ -60,5 +60,5 @@ void main(){
 
 	//Final Light
 	fs_color = texture(material.diffuseTex, vs_texcoord)
-		* (vec4(ambientFinal, 1.f) + vec4(diffuseFinal, 1.f) + vec4(specularFinal, 1.0f));
+		* (vec4(ambientFinal, 0.1f) + vec4(diffuseFinal, 0.1f) + vec4(specularFinal, 0.1f));
 }

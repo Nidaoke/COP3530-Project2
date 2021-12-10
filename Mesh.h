@@ -117,6 +117,9 @@ private:
 	}
 
 public:
+
+	int weight = 0;
+
 	Mesh(Vertex* vertexArray, const unsigned& nrOfVertices, GLuint* indexArray, const unsigned& nrOfIndices, glm::vec3 position = glm::vec3(0.0f), glm::vec3 rotation = glm::vec3(0.0f), glm::vec3 scale = glm::vec3(1.0f)){
 		this->position = position;
 		this->rotation = rotation;
@@ -128,13 +131,15 @@ public:
 
 	Mesh(
 		Primitive* primitive,
-		glm::vec3 position = glm::vec3(0.0f), 
-		glm::vec3 rotation = glm::vec3(0.0f), 
+		int weight,
+		glm::vec3 position = glm::vec3(0.0f),
+		glm::vec3 rotation = glm::vec3(0.0f),
 		glm::vec3 scale = glm::vec3(1.0f)
 	){
 		this->position = position;
 		this->rotation = rotation;
 		this->scale = scale;
+		this->weight = weight;
 
 		this->initVAO(primitive);
 		this->updateModelMatrix();
