@@ -42,5 +42,6 @@ class Graph {
 public:
 	void InitializeGraph();
 	void TestGraph();
+	unordered_map<Node*, unordered_map<Node*, int>> getAdjList();
 };
 
