@@ -9,56 +9,39 @@
 using namespace std;
 
 
-////inspired by Aman's pseudocode
-////Following PseudoCode from slides using 2set and 2array method
-//vector<Node*> dijkstra(Graph& graph, Node* src, Node* endNode) {
-//    int numVertices = 47 * 47 * 47;
-//    
-//    unordered_set<Node*> computedVertices = {src}, nonComputedVertices;
-//    unordered_map<Node*, int> distances;
-//    priority_queue< Node*, vector<Node*>, minF > unvisited;
-//    vector<Node*> v;
-//    unordered_map<Node*, Node*> predecessors;
-//    for (auto i : graph.adjList) {
-//        distances[i.first] = INT_MAX;
-//    }
-//    for (auto i : graph.adjList) {
-//
-//        if (i.first != src) {
-//            nonComputedVertices.insert(i.first);
-//            for (auto v : graph.adjList[src])
-//                if (v.first == i.first) {
-//                    distances[i.first] = v.second;
-//                    break;
-//                }
-//        }
-//    }
-//    distances[src] = 0;
-//    v.push_back(src);
-//    while(!nonComputedVertices.empty()){
-//        Node* index = src;
-//        int smallestVal = INT_MAX;
-//        
-//        for (auto v:nonComputedVertices)
-//            if (distances[v]<smallestVal){
-//                index = v;
-//                smallestVal = distances[v];
-//            }
-//        nonComputedVertices.erase(index);
-//        computedVertices.insert(index);
-//        v.push_back(index);
-//        for (auto v : graph.adjList[index]) {
-//            if (distances[index] + v.second < distances[v.first]) {
-//                distances[v.first] = distances[index] + v.second;
-//                predecessors[v.first] = index;
-//            }
-//        }
-//        if (computedVertices.find(endNode) != computedVertices.end()) {
-//            return v;
-//        }
-//    }
-//    return v;
-//}
+#include <unordered_set> //Following PseudoCode from slides using 2set and 2array method
+vector<int> dijkstra(Graph& graph, int src) {
+    int numVertices = 47 * 47 * 47;
+    unordered_set<int> computedVertices = { src }, nonComputedVertices;
+    vector<int> distances(numVertices, 2147483647);
+    vector<int>predecessor;
+    for (int i = 0; i < graph.adjList.size(); i++)
+        if (i != src) {
+            nonComputedVertices.insert(i);
+            for (auto v : graph.adjList[src])
+                if (v.first == i) {
+                    distances[i] = v.second;
+                    break;
+                }
+        }
+    distances[src] = 0;
+    while (!nonComputedVertices.empty()) {
+        int index = src, smallestVal = 2147483647;
+        for (auto v : nonComputedVertices)
+            if (distances[v] < smallestVal) {
+                index = v;
+                smallestVal = distances[v];
+            }
+        nonComputedVertices.erase(index);
+        computedVertices.insert(index);
+        for (auto v : graph.adjList[index])
+            if (distances[index] + v.second < distances[v.first]) {
+                distances[v.first] = distances[index] + v.second;
+                predecessor[v.first] = index;
+            }
+    }
+    return distances;
+}
 //
 //
 //
@@ -144,15 +127,5 @@ int main(){
     Graph g;
     g.InitializeGraph();
     g.TestGraph();
-    //vector<Node*> aPath = a_star(g, g.getStartNode(), g.getEndNode());
-    //vector <Node*> path = dijkstra(g, g.getStartNode(), g.getEndNode());
-    /*for (auto iter : aPath) {
-        cout << "F_score" << iter->f_score << endl;
-        
-    }*/
-    //cout << "A*: " << aPath.size() << endl;
-    /*vector<Node*> path = dijkstra(g, g.getStartNode(), g.getEndNode());
-    cout << "Dijkstras: " << path.size() << endl;;
-   */
 
 }

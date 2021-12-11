@@ -45,12 +45,12 @@ void Graph::InitializeGraph() {
 				}
 				if (z == 0) {
 					int ranInt = range(rng);
-					int calc = pow(27, 2);
+					int calc = pow(47, 2);
 					adjList[i][i + calc] = ranInt;
 				}
 				else if (z == 46) {
 					int ranInt = range(rng);
-					int calc = pow(27, 2);
+					int calc = pow(47, 2);
 					adjList[i][i - calc] = ranInt;
 				}
 				else {
