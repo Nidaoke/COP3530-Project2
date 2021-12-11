@@ -12,6 +12,7 @@
 #include <unordered_set> 
 #include <tuple>
 #include <chrono>
+#include <map>
 using namespace std;
 
 
@@ -81,6 +82,92 @@ std::pair<std::vector<int>, std::vector<int>> dijkstra(Graph& graph, int src, in
     std::reverse(v.begin(), v.end());
 
     return std::make_pair(v, r);
+}
+
+double findH(int node1, int node2){ //sqrt((x-x2)^2  + (y-y2)^2 + (z-z2)^2) finding the distance between two points
+    //x,y,z of first node
+    int calc = pow(47, 2);
+    int x1 = (node1%calc)%47;
+    int y1 = (node1%calc)/47;
+    int z1 = node1/calc;
+    //x,y,z of second node
+    int x2 = (node2%calc)%47;
+    int y2 = (node2%calc)/47;
+    int z2 = node2/calc;
+    //differences of x, y, and z
+    int diffX = x1-x2;
+    int diffY = y1-y2;
+    int diffZ = z1-z2;
+    //x,y,z squared
+    int xSquared = pow(diffX, 2);
+    int ySquared = pow(diffY, 2);
+    int zSquared = pow(diffZ, 2);
+    double result = sqrt(xSquared+ySquared+zSquared);
+    return result;
+}
+
+vector <int> a_star(Graph& graph, int start, int target) { //parameters: graph, start_node, target_node
+    set <int> visited = {};
+    vector<int> v;
+    map<double, int> uv;
+    int current;
+    int numVertices = 10*10*10;
+    int g_score = 0;
+    double f_score = findH(start, target);
+    uv[f_score] = start;
+    vector<int> distances(numVertices, 2147483647);
+    vector<int>predecessor;
+    for (int i = 0; i<graph.adjList.size(); i++)
+        if (i!=start) {
+
+            for (auto v:graph.adjList[start])
+                if (v.first==i) {
+                    distances[i] = v.second;
+                    break;
+                }
+        }
+    bool finished = false;
+    while (!finished) {
+        int tempG = 0;
+
+        if (uv.empty()) { //if empty then they have all been visited
+
+            finished = true;
+        }
+        else {
+            auto iter = uv.begin();
+            current = iter->second;
+            uv.erase(iter);
+            if (current==target) {
+
+                finished = true;
+                //copying data to visited map
+                visited.insert(current);
+                v.push_back(current);
+            }
+            else {
+                for (auto iter:graph.adjList[current]) { //something might get destroyed here
+                    int neighbor = iter.first;
+                    if (visited.find(neighbor)==visited.end()) { //if not in visited map
+                        tempG = distances[current]+graph.adjList[current][neighbor]; //weight to travel to the neighbor
+
+                        if (tempG<distances[neighbor]) { //the weight to travel is less than the weight to travel to the neighbor
+
+                            f_score = tempG+findH(neighbor, target);
+
+
+                            uv[f_score] = neighbor;
+
+                        }
+                    }
+                }
+                visited.insert(current);
+                v.push_back(current);
+            }
+        }
+    }
+
+    return v;
 }
 
 /*double findH(Node* node1, Node* node2){ //sqrt((x-x2)^2  + (y-y2)^2 + (z-z2)^2) finding the distance between two points
@@ -188,6 +275,17 @@ int main(){
 
     std::cout<<"Shortest path found with length "<<dPath.second.size()<<". Took "<<duration.count()<<" milliseconds.\n";
 
+    std::cout<<"Calculating shortest path with A*...\n";
+
+    start = std::chrono::high_resolution_clock::now();
+
+    std::vector<int> aPath = a_star(g, 0, 999);
+
+    end = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
+
+    std::cout<<"Shortest path found with length "<<aPath.size()<<". Took "<<duration.count()<<" milliseconds.\n";
+
     std::vector<wallToBuild*> walls;
 
     std::cout<<"Building walls of maze...\n";
@@ -227,6 +325,7 @@ int main(){
         walls,
         dPath.first,
         dPath.second,
+        aPath,
         "Worm Test",
         800, 600,
         4, 5,

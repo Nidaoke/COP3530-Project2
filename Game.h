@@ -45,8 +45,10 @@ private:
 	//std::vector<std::tuple<int, int, int>> path;
 	std::vector<int> path;
 	std::vector<int> pathFinal;
+	std::vector<int> aPath;
 
 	int countToRender = 0;
+	int aCount = 0;
 
 	const int WINDOW_WIDTH;
 	const int WINDOW_HEIGHT;
@@ -97,6 +99,7 @@ private:
 	std::vector<Mesh*> meshes;
 	std::vector<Mesh*> wormMeshes;
 	std::vector<Mesh*> wormMeshesFinal;
+	std::vector<Mesh*> aMeshes;
 
 	//Lights
 	std::vector<glm::vec3*> lights;
@@ -128,6 +131,7 @@ public:
 		std::vector<wallToBuild*> walls,
 		std::vector<int> path,
 		std::vector<int> pathFinal,
+		std::vector<int> aPath,
 		const char* title,
 		const int WINDOW_WIDTH, const int WINDOW_HEIGHT,
 		const int GL_VERSION_MAJOR, const int GL_VERSION_MINOR,

@@ -385,6 +385,109 @@ void Game::initMeshes(){
         )
     );
 
+    this->aMeshes.push_back(
+        new Mesh(
+            &tempCube,
+            5,
+            glm::vec3(0.0f, -0.5f, 0.0f),
+            glm::vec3(0.0f),
+            glm::vec3(0.5f, 1.5f, 0.5f)
+        )
+    );
+
+    for (int i = 0; i<aPath.size()-1; i++){
+
+        zC = aPath[i]/100;
+        yC = (aPath[i]%100)/10;
+        xC = (aPath[i]%100)%10;
+        zCN = aPath[i+1]/100;
+        yCN = (aPath[i+1]%100)/10;
+        xCN = (aPath[i+1]%100)%10;
+
+        //std::cout<<"Path "<<i<<": "<<xC<<", "<<yC<<", "<<zC<<std::endl;
+
+        glm::vec3 diff = glm::vec3(xC, yC, zC)-glm::vec3(xCN, yCN, zCN);
+
+        if (diff.y==1){
+            this->aMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC-.5f, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 1.5f, 0.5f)
+                )
+            );
+        }
+        else if (diff.y==-1){
+            this->aMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC+.5f, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 1.5f, 0.5f)
+                )
+            );
+        }
+
+        if (diff.x==-1){
+            this->aMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC+0.5f, (float)yC, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(1.5f, 0.5f, 0.5f)
+                )
+            );
+        }
+        else if (diff.x==1){
+            this->aMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC-0.5f, (float)yC, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(1.5f, 0.5f, 0.5f)
+                )
+            );
+        }
+
+        if (diff.z==-1){
+            this->aMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC, -((float)zC+.5f)),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 0.5f, 1.5f)
+                )
+            );
+        }
+        else if (diff.z==1){
+            this->aMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC, -((float)zC-.5f)),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 0.5f, 1.5f)
+                )
+            );
+        }
+    }
+
+    this->aMeshes.push_back(
+        new Mesh(
+            &tempCube,
+            5,
+            glm::vec3(0.0f, -0.5f, 0.0f),
+            glm::vec3(0.0f),
+            glm::vec3(0.5f, 1.5f, 0.5f)
+        )
+    );
+
     /*for (auto v:path){
         //std::cout<<"Building Cube at "<<v->xPos<<" "<<v->yPos<<" "<<v->zPos<<std::endl;
         this->meshes.push_back(
@@ -536,6 +639,7 @@ Game::Game(
     std::vector<wallToBuild*> walls,
     std::vector<int> path,
     std::vector<int> pathFinal,
+    std::vector<int> aPath,
     const char* title,
     const int WINDOW_WIDTH, const int WINDOW_HEIGHT,
     const int GL_VERSION_MAJOR, const int GL_VERSION_MINOR,
@@ -550,6 +654,7 @@ Game::Game(
     //std::cout<<std::endl<<"From Game, path.size(): "<<path.size()<<std::endl;
     this->path = path;
     this->pathFinal = pathFinal;
+    this->aPath = aPath;
 
     this->window = nullptr;
     this->framebufferWidth = this->WINDOW_WIDTH;
@@ -665,6 +770,10 @@ void Game::updateKeyboardInput(){
         this->countToRender++;
     }
 
+    if (glfwGetKey(this->window, GLFW_KEY_P)==GLFW_PRESS){
+        this->aCount++;
+    }
+
     if (glfwGetKey(this->window, GLFW_KEY_SPACE)==GLFW_PRESS){
         this->showFinal = true;
     }
@@ -697,6 +806,19 @@ void Game::render(){
     //this->materials[0]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
     this->shaders[SHADER_CORE_PROGRAM]->use();
     this->materials[1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+
+    if (aCount>0){
+        showFinal = false;
+        countToRender = 0;
+
+        for (int i = 0; i<aCount; i++){
+            if (i<aMeshes.size()){
+                this->textures[4]->bind(0);
+                this->textures[4]->bind(1);
+                aMeshes[i]->render(this->shaders[SHADER_CORE_PROGRAM]);
+            }
+        }
+    }
 
     if (showFinal){
         countToRender = 0;
