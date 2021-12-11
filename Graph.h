@@ -4,6 +4,7 @@
 #include <string>
 #include <random>
 #include <unordered_map>
+#include <map>
 using std::cout;
 using std::endl;
 using std::vector;
