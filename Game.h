@@ -28,6 +28,7 @@
 #include "Camera.h"
 #include "wallToBuild.h"
 #include "Graph.h"
+#include <tuple>
 
 //ENUMERATIONS
 enum shader_enum{SHADER_CORE_PROGRAM = 0};
@@ -41,7 +42,11 @@ private:
 //Variables
 	//window
 	GLFWwindow* window;
-	std::vector<Node*> path;
+	//std::vector<std::tuple<int, int, int>> path;
+	std::vector<int> path;
+	std::vector<int> pathFinal;
+
+	int countToRender = 0;
 
 	const int WINDOW_WIDTH;
 	const int WINDOW_HEIGHT;
@@ -90,6 +95,8 @@ private:
 
 	//Meshes
 	std::vector<Mesh*> meshes;
+	std::vector<Mesh*> wormMeshes;
+	std::vector<Mesh*> wormMeshesFinal;
 
 	//Lights
 	std::vector<glm::vec3*> lights;
@@ -119,12 +126,15 @@ public:
 //Constructors / Destructors
 	Game(
 		std::vector<wallToBuild*> walls,
-		std::vector<Node*> path,
+		std::vector<int> path,
+		std::vector<int> pathFinal,
 		const char* title,
 		const int WINDOW_WIDTH, const int WINDOW_HEIGHT,
 		const int GL_VERSION_MAJOR, const int GL_VERSION_MINOR,
 		bool resizable);
 	virtual ~Game();
+
+	bool showFinal = false;
 
 //Accessors
 	int getWindowShouldClose();

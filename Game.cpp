@@ -56,6 +56,7 @@ void Game::initOpenGLOptions(){
 }
 
 void Game::initMatrices(){
+    std::cout<<"Initializing Matrices"<<std::endl;
     this->ViewMatrix = glm::mat4(1.0f);
     ViewMatrix = glm::lookAt(this->camPosition, this->camPosition+this->camFront, this->worldUp);
 
@@ -65,6 +66,7 @@ void Game::initMatrices(){
 }
 
 void Game::initShaders(){
+    std::cout<<"Initializing Shaders"<<std::endl;
     this->shaders.push_back(new Shader(
         this->GL_VERSION_MAJOR, this->GL_VERSION_MINOR,
         (char*)("src/vertex_core.glsl"), (char*)("src/fragment_core.glsl"))
@@ -72,6 +74,7 @@ void Game::initShaders(){
 }
 
 void Game::initTextures(){
+    std::cout<<"Initializing Textures"<<std::endl;
     this->textures.push_back(new Texture("src/weight1.png", GL_TEXTURE_2D));
     this->textures.push_back(new Texture("src/weight2.png", GL_TEXTURE_2D));
     this->textures.push_back(new Texture("src/weight3.png", GL_TEXTURE_2D));
@@ -89,13 +92,16 @@ void Game::initTextures(){
 }
 
 void Game::initMaterials(){
+    std::cout<<"Initializing Materials"<<std::endl;
     this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 0, 1, 0.1f));
     this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 0, 1, 1.0f));
 }
 
 void Game::initMeshes(){
+    
+    //std::cout<<std::endl<<"PATH SIZE: "<<this->path.size()<<std::endl;
 
-    std::cout<<std::endl<<"PATH SIZE: "<<this->path.size()<<std::endl;
+    std::cout<<"Init Meshes"<<std::endl;
 
     /*Quad tempQuad;
     this->meshes.push_back(
@@ -118,8 +124,269 @@ void Game::initMeshes(){
         ));*/
 
     Cube tempCube;
-    for (auto v:path){
-        std::cout<<"Building Cube at "<<v->xPos<<" "<<v->yPos<<" "<<v->zPos<<std::endl;
+    Quad tempQuad;
+
+    /*for (int i = 0; i<10000; i++){
+        Quad tempQuad;
+
+        if (walls[i]->f==0)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    walls[i]->w,
+                    glm::vec3((float)walls[i]->x+.5f, (float)walls[i]->y, -(float)walls[i]->z),
+                    glm::vec3(0.0f, 90.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+        if (walls[i]->f==1)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    walls[i]->w,
+                    glm::vec3((float)walls[i]->x-.5f, (float)walls[i]->y, -(float)walls[i]->z),
+                    glm::vec3(0.0f, -90.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+
+        if (walls[i]->f==3)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    walls[i]->w,
+                    glm::vec3((float)walls[i]->x, (float)walls[i]->y-.5f, -(float)walls[i]->z),
+                    glm::vec3(90.0f, 0.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+        if (walls[i]->f==2)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    walls[i]->w,
+                    glm::vec3((float)walls[i]->x, (float)walls[i]->y+.5f, -(float)walls[i]->z),
+                    glm::vec3(-90.0f, 0.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+
+        if (walls[i]->f==5)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    walls[i]->w,
+                    glm::vec3((float)walls[i]->x, (float)walls[i]->y, -(float)walls[i]->z-.5f),
+                    glm::vec3(0.0f, 180.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+        if (walls[i]->f==4)
+            this->meshes.push_back(
+                new Mesh(
+                    &tempQuad,
+                    walls[i]->w,
+                    glm::vec3((float)walls[i]->x, (float)walls[i]->y, -(float)walls[i]->z+.5f),
+                    glm::vec3(0.0f, 0.0f, 0.0f),
+                    glm::vec3(1.0f)
+                ));
+    }*/
+
+    this->wormMeshes.push_back(
+        new Mesh(
+            &tempCube,
+            5,
+            glm::vec3(9.0f, 9.5f, -9.0f),
+            glm::vec3(0.0f),
+            glm::vec3(0.5f, 1.5f, 0.5f)
+        )
+    );
+
+    int xC = 0, yC = 0, zC = 0, xCN = 0, yCN = 0, zCN = 0;
+
+    for (int i = 0; i < path.size()-1; i++){
+
+        zC = path[i]/100;
+        yC = (path[i]%100)/10;
+        xC = (path[i]%100)%10;
+        zCN = path[i+1]/100;
+        yCN = (path[i+1]%100)/10;
+        xCN = (path[i+1]%100)%10;
+
+        //std::cout<<"Path "<<i<<": "<<xC<<", "<<yC<<", "<<zC<<std::endl;
+
+        glm::vec3 diff = glm::vec3(xC, yC, zC)-glm::vec3(xCN, yCN, zCN);
+
+        if (diff.y==1){
+            this->wormMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC-.5f, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 1.5f, 0.5f)
+                )
+            );
+        }
+        else if (diff.y==-1){
+            this->wormMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC+.5f, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 1.5f, 0.5f)
+                )
+            );
+        }
+
+        if (diff.x==-1){
+            this->wormMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC+0.5f, (float)yC, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(1.5f, 0.5f, 0.5f)
+                )
+            );
+        }
+        else if (diff.x==1){
+            this->wormMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC-0.5f, (float)yC, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(1.5f, 0.5f, 0.5f)
+                )
+            );
+        }
+
+        if (diff.z==-1){
+            this->wormMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC, -((float)zC+.5f)),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 0.5f, 1.5f)
+                )
+            );
+        }
+        else if (diff.z==1){
+            this->wormMeshes.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC, -((float)zC-.5f)),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 0.5f, 1.5f)
+                )
+            );
+        }
+    }
+
+    this->wormMeshesFinal.push_back(
+        new Mesh(
+            &tempCube,
+            5,
+            glm::vec3(0.0f, -0.5f, 0.0f),
+            glm::vec3(0.0f),
+            glm::vec3(0.5f, 1.5f, 0.5f)
+        )
+    );
+
+    for (int i = 0; i<pathFinal.size()-1; i++){
+
+        zC = pathFinal[i]/100;
+        yC = (pathFinal[i]%100)/10;
+        xC = (pathFinal[i]%100)%10;
+        zCN = pathFinal[i+1]/100;
+        yCN = (pathFinal[i+1]%100)/10;
+        xCN = (pathFinal[i+1]%100)%10;
+
+        //std::cout<<"Path "<<i<<": "<<xC<<", "<<yC<<", "<<zC<<std::endl;
+
+        glm::vec3 diff = glm::vec3(xC, yC, zC)-glm::vec3(xCN, yCN, zCN);
+
+        if (diff.y==1){
+            this->wormMeshesFinal.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC-.5f, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 1.5f, 0.5f)
+                )
+            );
+        }
+        else if (diff.y==-1){
+            this->wormMeshesFinal.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC+.5f, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 1.5f, 0.5f)
+                )
+            );
+        }
+
+        if (diff.x==-1){
+            this->wormMeshesFinal.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC+0.5f, (float)yC, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(1.5f, 0.5f, 0.5f)
+                )
+            );
+        }
+        else if (diff.x==1){
+            this->wormMeshesFinal.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC-0.5f, (float)yC, -(float)zC),
+                    glm::vec3(0.0f),
+                    glm::vec3(1.5f, 0.5f, 0.5f)
+                )
+            );
+        }
+
+        if (diff.z==-1){
+            this->wormMeshesFinal.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC, -((float)zC+.5f)),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 0.5f, 1.5f)
+                )
+            );
+        }
+        else if (diff.z==1){
+            this->wormMeshesFinal.push_back(
+                new Mesh(
+                    &tempCube,
+                    5,
+                    glm::vec3((float)xC, (float)yC, -((float)zC-.5f)),
+                    glm::vec3(0.0f),
+                    glm::vec3(0.5f, 0.5f, 1.5f)
+                )
+            );
+        }
+    }
+
+    this->wormMeshesFinal.push_back(
+        new Mesh(
+            &tempCube,
+            5,
+            glm::vec3(0.0f, -0.5f, 0.0f),
+            glm::vec3(0.0f),
+            glm::vec3(0.5f, 1.5f, 0.5f)
+        )
+    );
+
+    /*for (auto v:path){
+        //std::cout<<"Building Cube at "<<v->xPos<<" "<<v->yPos<<" "<<v->zPos<<std::endl;
         this->meshes.push_back(
             new Mesh(
                 &tempCube,
@@ -129,10 +396,21 @@ void Game::initMeshes(){
                 glm::vec3(0.3f)
             )
         );
-    }
+    }*/
+
+    /*this->meshes.push_back(
+        new Mesh(
+            &tempCube,
+            5,
+            glm::vec3(0.0f),
+            glm::vec3(0.0f),
+            glm::vec3(0.3f)
+        )
+    );*/
+
+    std::cout<<"Cube Meshes Built"<<std::endl;
 
     for (auto v:walls){
-        Quad tempQuad;
 
         if (v->f==0)
             this->meshes.push_back(
@@ -220,10 +498,12 @@ void Game::initMeshes(){
 }
 
 void Game::initLights(){
+    std::cout<<"Initializing Lights"<<std::endl;
     this->lights.push_back(new glm::vec3(0.0f, 0.0f, 5.0f));
 }
 
 void Game::initUniforms(){
+    std::cout<<"Initializing Uniforms"<<std::endl;
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ViewMatrix, "ViewMatrix");
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ProjectionMatrix, "ProjectionMatrix");
 
@@ -231,6 +511,7 @@ void Game::initUniforms(){
 }
 
 void Game::updateUniforms(){
+    //std::cout<<"Updating Uniforms"<<std::endl;
     //Update View Matrix (camera)
     this->ViewMatrix = this->camera.getViewMatrix();
 
@@ -253,7 +534,8 @@ void Game::updateUniforms(){
 //Constructors / Destructors
 Game::Game(
     std::vector<wallToBuild*> walls,
-    std::vector<Node*> path,
+    std::vector<int> path,
+    std::vector<int> pathFinal,
     const char* title,
     const int WINDOW_WIDTH, const int WINDOW_HEIGHT,
     const int GL_VERSION_MAJOR, const int GL_VERSION_MINOR,
@@ -267,6 +549,7 @@ Game::Game(
 
     //std::cout<<std::endl<<"From Game, path.size(): "<<path.size()<<std::endl;
     this->path = path;
+    this->pathFinal = pathFinal;
 
     this->window = nullptr;
     this->framebufferWidth = this->WINDOW_WIDTH;
@@ -378,6 +661,13 @@ void Game::updateKeyboardInput(){
         this->camPosition.y += 0.05f;
     if (glfwGetKey(this->window, GLFW_KEY_Q)==GLFW_PRESS)
         this->camPosition.y -= 0.05f;
+    if (glfwGetKey(this->window, GLFW_KEY_ENTER)==GLFW_PRESS){
+        this->countToRender++;
+    }
+
+    if (glfwGetKey(this->window, GLFW_KEY_SPACE)==GLFW_PRESS){
+        this->showFinal = true;
+    }
 }
 
 void Game::updateInput(){
@@ -404,19 +694,32 @@ void Game::render(){
     //Update uniforms
     this->updateUniforms();
 
+    //this->materials[0]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+    this->shaders[SHADER_CORE_PROGRAM]->use();
+    this->materials[1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+
+    if (showFinal){
+        countToRender = 0;
+
+        for (int i = 0; i<wormMeshesFinal.size(); i++){
+            this->textures[4]->bind(0);
+            this->textures[4]->bind(1);
+            wormMeshesFinal[i]->render(this->shaders[SHADER_CORE_PROGRAM]);
+        }
+    }
+
+    for (int i = 0; i<countToRender; i++){
+        if (i<wormMeshes.size()){
+            this->textures[4]->bind(0);
+            this->textures[4]->bind(1);
+            wormMeshes[i]->render(this->shaders[SHADER_CORE_PROGRAM]);
+        }
+    }
+
+
+    this->materials[0]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+
     for (auto v:meshes){
-
-        if (v->weight==5){
-            //Send material to shader
-            this->materials[1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-        }
-        else{
-            //Send material to shader
-            this->materials[0]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-        }
-
-        this->shaders[SHADER_CORE_PROGRAM]->use();
-
         this->textures[v->weight-1]->bind(0);
         this->textures[v->weight-1]->bind(1);
         v->render(this->shaders[SHADER_CORE_PROGRAM]);

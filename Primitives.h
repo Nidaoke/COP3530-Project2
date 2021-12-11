@@ -125,7 +125,7 @@ public:
 	}
 };
 
-/*class Cube: public Primitive
+class Cube: public Primitive
 {
 public:
 	Cube()
@@ -158,15 +158,21 @@ public:
 			4, 6, 7,
 
 			3, 2, 5,
-			3, 5, 4
+			3, 5, 4,
+
+			0, 3, 4,
+			4, 7, 0,
+
+			2, 1, 6, 
+			6, 5, 2
 		};
 		unsigned nrOfIndices = sizeof(indices)/sizeof(GLuint);
 
 		this->set(vertices, nrOfVertices, indices, nrOfIndices);
 	}
-};*/
+};
 
-class Cube: public Primitive{
+/*class Cube: public Primitive{
 public:
 	Cube():Primitive(){
 		Vertex vertices[] = {
@@ -223,4 +229,4 @@ public:
 
 		this->set(vertices, nrOfVertices, nullptr, 0);
 	}
-};
+};*/
