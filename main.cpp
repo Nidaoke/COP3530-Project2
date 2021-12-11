@@ -132,6 +132,6 @@ vector <int> a_star(Graph& graph, int start, int target) { //parameters: graph, 
 int main(){
     Graph g;
     g.InitializeGraph();
-    g.TestGraph();
+    //g.TestGraph();
 
 }
